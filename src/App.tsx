@@ -5,7 +5,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import Home from "./pages/home";
+import Home from "./pages/shop-dashboard";
+// Importing the necessary components and hooks
 
 function App() {
   const { user } = useAuth();
