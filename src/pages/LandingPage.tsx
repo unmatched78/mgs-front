@@ -9,7 +9,7 @@ export default function LandingPage() {
             {/* Header with Navigation */}
             <header className="bg-white shadow-sm">
                 <nav className="mx-auto flex max-w-7xl items-center justify-between p-6">
-                    <div className="text-2xl font-bold text-gray-900">ButcherSync</div>
+                    <div className="text-2xl font-bold text-gray-900">Ikiraro Mgs</div>
                     <div className="flex gap-4">
                         <Link to="/login">
                             <Button variant="outline">Login</Button>
@@ -28,7 +28,7 @@ export default function LandingPage() {
                         Streamline Your Butcher Business
                     </h1>
                     <p className="mt-4 text-lg text-gray-600">
-                        ButcherSync connects butcher shops and veterinarians to manage inventory, suppliers, and customers efficiently. Join our platform to simplify operations and ensure quality.
+                        Ikiraro Mgs connects butcher shops and veterinarians to manage inventory, suppliers, and customers efficiently. Join our platform to simplify operations and ensure quality.
                     </p>
                     <Link to="/register" className="mt-6 inline-block">
                         <Button className="bg-blue-600 text-lg hover:bg-blue-700">
@@ -49,7 +49,7 @@ export default function LandingPage() {
             <section className="bg-white py-16">
                 <div className="mx-auto max-w-7xl px-6">
                     <h2 className="text-center text-3xl font-bold text-gray-900">
-                        Why Choose ButcherSync?
+                        Why Choose Ikiraro Mgs?
                     </h2>
                     <div className="mt-12 grid gap-8 md:grid-cols-3">
                         <Card>
@@ -93,10 +93,10 @@ export default function LandingPage() {
                         What Our Users Say
                     </h2>
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600 italic">
-                        "ButcherSync transformed how I manage my shop. Registering suppliers and customers is so easy, and the platform saves me hours every week!"
+                        "Ikiraro Mgs transformed how I manage my shop. Registering suppliers and customers is so easy, and the platform saves me hours every week!"
                     </p>
                     <p className="mt-2 font-semibold text-gray-900">
-                        — John D., Butcher Shop Owner
+                        — Mutabazi D., Butcher Shop Owner
                     </p>
                 </div>
             </section>
