@@ -77,8 +77,10 @@
 //     if (
 //       error.response?.status === 401 &&
 //       !originalRequest._retry &&
-//       getStoredRefreshToken()
+//       getStoredRefreshToken() &&
+//       !originalRequest.url?.includes("/auth/register/")
 //     ) {
+//       console.log("Handling 401 for URL:", originalRequest.url);
 //       originalRequest._retry = true;
 
 //       if (!isRefreshing) {
@@ -140,6 +142,13 @@ const api: AxiosInstance = axios.create({
 const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 
+// Callback to update user state in AuthContext
+let updateUserCallback: ((user: { id: number; username: string; email: string; role: string } | null) => void) | null = null;
+
+export function setUpdateUserCallback(callback: (user: { id: number; username: string; email: string; role: string } | null) => void) {
+  updateUserCallback = callback;
+}
+
 export function getStoredAccessToken(): string | null {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
@@ -200,7 +209,8 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       getStoredRefreshToken() &&
-      !originalRequest.url?.includes("/auth/register/")
+      !originalRequest.url?.includes("/auth/register/") &&
+      !originalRequest.url?.includes("/auth/refresh/")
     ) {
       console.log("Handling 401 for URL:", originalRequest.url);
       originalRequest._retry = true;
@@ -210,7 +220,10 @@ api.interceptors.response.use(
 
         try {
           const refreshToken = getStoredRefreshToken()!;
-          const { data } = await axios.post<{ access: string }>(
+          const { data } = await axios.post<{
+            access: string;
+            user?: { id: number; username: string; email: string; role: string };
+          }>(
             `${API_BASE_URL}/auth/refresh/`,
             { refresh: refreshToken },
             { headers: { "Content-Type": "application/json" } }
@@ -219,6 +232,11 @@ api.interceptors.response.use(
           const newAccessToken = data.access;
           storeTokens(newAccessToken, getStoredRefreshToken()!);
           api.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
+
+          // Update user state if user data is included in the response
+          if (data.user && updateUserCallback) {
+            updateUserCallback(data.user);
+          }
 
           processQueue(null, newAccessToken);
           isRefreshing = false;
@@ -230,6 +248,9 @@ api.interceptors.response.use(
           processQueue(refreshError, null);
           isRefreshing = false;
           clearTokens();
+          if (updateUserCallback) {
+            updateUserCallback(null); // Clear user state on refresh failure
+          }
           return Promise.reject(refreshError);
         }
       }

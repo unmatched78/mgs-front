@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
 export function LoginForm({
@@ -28,7 +28,21 @@ export function LoginForm({
     try {
       await login(username.trim(), password);
       toast.success("Login successful!");
-      navigate("/dashboard", { replace: true });
+      // Redirect to the different dashboards after successful login according to user role
+      // assuming user role is stored in the auth context 
+      // Use replace to prevent going back to the login page
+      const userRole = localStorage.getItem("user.role");
+      if (userRole === "shop") {
+        navigate("/shop-dashboard", { replace: true });
+      }
+      else if (userRole === "vets") {
+        navigate("/vets-dashboard", { replace: true });
+      } else if (userRole === "admin") {
+        navigate("/admin-dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true }); // Default to home for other roles
+      }
+
     } catch (err: any) {
       console.log("Full error:", err);
       console.log("Error response:", err.response?.data);

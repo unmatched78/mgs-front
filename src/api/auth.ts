@@ -340,13 +340,3 @@ export async function registerCustomer(data: CustomerRegisterData): Promise<{ to
 export function logoutUser() {
   clearTokens();
 }
-
-export async function fetchCurrentUser(): Promise<UserData> {
-  try {
-    const response = await api.get<UserData>("/auth/user/");
-    return response.data;
-  } catch (error: any) {
-    console.error("Fetch user error:", error.response?.data);
-    throw new Error(error.response?.data?.detail || "Failed to fetch user data");
-  }
-}
