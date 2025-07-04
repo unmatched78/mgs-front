@@ -45,7 +45,7 @@ function App() {
           element={<Navigate to={user ? '/notes' : '/login'} replace />}
         />
       </Routes>
-      </Suspense>
+      
         { import.meta.env.VITE_TEMPO === "true" && useRoutes(routes) }
       </>
     </Suspense >
