@@ -340,7 +340,7 @@ export default function RegisterPage() {
             </form>
             <div className="bg-muted relative hidden md:block">
               <img
-                src="/placeholder.svg"
+                src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
                 alt="Image"
                 className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
               />
