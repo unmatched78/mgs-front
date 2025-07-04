@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { Bell, Menu, Search, User } from "lucide-react";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Separator } from "./ui/separator";
-import InventoryOverview from "./dashboard/InventoryOverview";
-import OrderManagement from "./dashboard/OrderManagement";
-import DocumentCenter from "./dashboard/DocumentCenter";
-import CommunicationPanel from "./dashboard/CommunicationPanel";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
+import { Separator } from "../components/ui/separator";
+import InventoryOverview from "../components/dashboard/InventoryOverview";
+import OrderManagement from "../components/dashboard/OrderManagement";
+import DocumentCenter from "../components/dashboard/DocumentCenter";
+import CommunicationPanel from "../components/dashboard/CommunicationPanel";
 
 type UserRole = "staff" | "supplier" | "veterinarian" | "customer";
 
