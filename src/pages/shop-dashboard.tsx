@@ -19,7 +19,7 @@ interface HomeProps {
   userName?: string;
 }
 
-const Home = ({ userRole = "supplier", userName = "John Doe" }: HomeProps) => {
+const Home = ({ userRole = "customer", userName = "John Doe" }: HomeProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
