@@ -108,7 +108,7 @@ export default function LandingPage() {
                         Ready to Transform Your Business?
                     </h2>
                     <p className="mt-4 text-lg text-blue-100">
-                        Join ButcherSync today and take control of your butcher shop or veterinary practice.
+                        Join Ikiraro Mgs today and take control of your butcher shop or veterinary practice.
                     </p>
                     <Link to="/register" className="mt-6 inline-block">
                         <Button className="bg-white text-blue-600 hover:bg-gray-100 text-lg">
