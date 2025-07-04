@@ -16,7 +16,7 @@ type UserRole = "staff" | "supplier" | "veterinarian" | "customer";
 
 interface HomeProps {
   userRole?: UserRole;
-  userName?: string;km
+  userName?: string;
 }
 
 const Home = ({ userRole = "supplier", userName = "John Doe" }: HomeProps) => {
