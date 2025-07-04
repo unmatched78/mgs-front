@@ -48,18 +48,17 @@ A modular,  platform for managing multi‑tenant butcher shops in Rwanda. Provid
 
 ## 📦 Tech Stack
 
-- **Backend**  
-  - Python 3.10+  
-  - Django 4.x  
-  - Django REST Framework  
-  - djangorestframework-simplejwt (JWT auth)  
+- **Frontend**  
+  - Typescript  
+  - Reactjs 
+  - tailwindcss
+  - shadcn UI
+  - (JWT auth)  
   - WeasyPrint (PDF generation)
+  - Resend[email management]
 
 - **Database**  
   - PostgreSQL
-
-- **Email**  
-  - SMTP via Gmail (App Password)
 
 - **Deployment**  
   - Docker & docker‑compose (optional)  
@@ -71,7 +70,7 @@ A modular,  platform for managing multi‑tenant butcher shops in Rwanda. Provid
 
 - Client (Web/Mobile)
 - ↕ JSON over HTTPS
-- Django API (DRF + JWT + Email Templates)
+- Django/Nestjs API (DRF + JWT + Email Templates)
 - ↕ Psycopg2
 - PostgreSQL
 
