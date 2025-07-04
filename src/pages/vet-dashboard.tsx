@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Bell, Menu, Search, User } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -7,8 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
-import InventoryOverview from "../components/dashboard/InventoryOverview";
-import OrderManagement from "../components/dashboard/OrderManagement";
 import DocumentCenter from "../components/dashboard/DocumentCenter";
 import CommunicationPanel from "../components/dashboard/CommunicationPanel";
 
@@ -22,27 +20,6 @@ interface HomeProps {
 const Home = ({ userRole = "veterinarian", userName = "John Doe" }: HomeProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-
-  // Mock data for dashboard metrics
-  const metrics = {
-    totalSales: "€12,450",
-    pendingOrders: "24",
-    lowStockItems: "8",
-    expiringItems: "5",
-  };
-
-  // Mock data for pending tasks
-  const pendingTasks = [
-    { id: 1, title: "Approve delivery for Order #1234", priority: "high" },
-    { id: 2, title: "Review expiring inventory items", priority: "medium" },
-    {
-      id: 3,
-      title: "Confirm supplier delivery for tomorrow",
-      priority: "medium",
-    },
-    { id: 4, title: "Sign veterinary certificates", priority: "high" },
-  ];
-
   // Filter sidebar items based on user role
   const getSidebarItems = () => {
     const allItems = [
@@ -50,33 +27,13 @@ const Home = ({ userRole = "veterinarian", userName = "John Doe" }: HomeProps) =
         id: "overview",
         label: "Dashboard",
         icon: "grid",
-        roles: ["staff", "supplier", "veterinarian", "customer"],
+        roles: ["veterinarian"],
       },
-      {
-        id: "inventory",
-        label: "Inventory",
-        icon: "package",
-        roles: ["staff"],
-      },
-      {
-        id: "orders",
-        label: "Orders",
-        icon: "shopping-cart",
-        roles: ["staff", "customer"],
-      },
-      { id: "customers", label: "Customers", icon: "users", roles: ["staff"] },
-      { id: "suppliers", label: "Suppliers", icon: "truck", roles: ["staff"] },
       {
         id: "documents",
         label: "Documents",
         icon: "file-text",
-        roles: ["staff", "supplier", "veterinarian"],
-      },
-      {
-        id: "communications",
-        label: "Communications",
-        icon: "mail",
-        roles: ["staff"],
+        roles: ["veterinarian"],
       },
       {
         id: "slaughter-approvals",
@@ -88,13 +45,13 @@ const Home = ({ userRole = "veterinarian", userName = "John Doe" }: HomeProps) =
         id: "certificates",
         label: "Certificates",
         icon: "award",
-        roles: ["supplier", "veterinarian"],
+        roles: ["veterinarian"],
       },
       {
         id: "settings",
         label: "Settings",
         icon: "settings",
-        roles: ["staff", "supplier", "veterinarian", "customer"],
+        roles: ["veterinarian"],
       },
     ];
 
@@ -325,17 +282,6 @@ const Home = ({ userRole = "veterinarian", userName = "John Doe" }: HomeProps) =
                   </>
                 
               </div>
-            </div>
-          )}
-
-          {/* Inventory Tab */}
-          {activeTab === "inventory" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Inventory Management</h1>
-                <Button>Add New Item</Button>
-              </div>
-              <InventoryOverview />
             </div>
           )}
 

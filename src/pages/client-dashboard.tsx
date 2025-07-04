@@ -1,13 +1,11 @@
-import React, { useState } from "react";
-import { Bell, Menu, Search, User } from "lucide-react";
+import { useState } from "react";
+import { Bell, Menu, Search } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
-import InventoryOverview from "../components/dashboard/InventoryOverview";
 import DocumentCenter from "../components/dashboard/DocumentCenter";
 import CommunicationPanel from "../components/dashboard/CommunicationPanel";
 
@@ -296,17 +294,6 @@ const Home = ({ userRole = "customer", userName = "John Doe" }: HomeProps) => {
                     </div>
                   </>
               </div>
-            </div>
-          )}
-
-          {/* Inventory Tab */}
-          {activeTab === "inventory" && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Inventory Management</h1>
-                <Button>Add New Item</Button>
-              </div>
-              <InventoryOverview />
             </div>
           )}
 
