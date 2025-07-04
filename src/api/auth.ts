@@ -1,179 +1,3 @@
-// // // src/api/auth.ts
-// // import api, { storeTokens, clearTokens } from "./api";
-
-// // export interface LoginCredentials {
-// //   identifier: string; // Updated to match login with username or email
-// //   password: string;
-// // }
-
-// // export interface RegisterData {
-// //   username: string;
-// //   email: string;
-// //   phone: string;
-// //   role: "driver" | "client";
-// //   password: string;
-// //   license_number?: string;
-// //   frequent_location?: string;
-// //   personalID?: File;
-// // }
-
-// // export interface TokenPair {
-// //   access: string;
-// //   refresh: string;
-// // }
-
-// // export interface UserData {
-// //   id: number;
-// //   username: string;
-// //   role: string;
-// // }
-
-// // // LOGIN: POST /api/auth/token/login/
-// // export async function loginUser(creds: LoginCredentials): Promise<TokenPair> {
-// //   const response = await api.post<{
-// //     tokens: { access: string; refresh: string };
-// //     user: UserData;
-// //   }>("/auth/token/login/", {
-// //     identifier: creds.identifier, // Updated to use identifier
-// //     password: creds.password,
-// //   });
-
-// //   const { access, refresh } = response.data.tokens;
-// //   storeTokens(access, refresh);
-// //   return { access, refresh };
-// // }
-
-// // // REGISTER: POST /api/auth/register/
-// // export async function registerUser(data: RegisterData): Promise<TokenPair> {
-// //   const formData = new FormData();
-// //   formData.append("username", data.username);
-// //   formData.append("email", data.email);
-// //   formData.append("phone", data.phone);
-// //   formData.append("role", data.role);
-// //   formData.append("password", data.password);
-// //   if (data.role === "driver") {
-// //     if (data.license_number) formData.append("license_number", data.license_number);
-// //     if (data.frequent_location) formData.append("frequent_location", data.frequent_location);
-// //     if (data.personalID) formData.append("personalID", data.personalID);
-// //   }
-
-// //   const response = await api.post<{
-// //     tokens: { access: string; refresh: string };
-// //     user: UserData;
-// //   }>("/auth/register/", formData, {
-// //     headers: { "Content-Type": "multipart/form-data" },
-// //   });
-
-// //   const { access, refresh } = response.data.tokens;
-// //   storeTokens(access, refresh);
-// //   return { access, refresh };
-// // }
-
-// // // LOGOUT: Clear tokens on client
-// // export function logoutUser() {
-// //   clearTokens();
-// // }
-
-// // // FETCH CURRENT USER: GET /api/auth/user/
-// // export async function fetchCurrentUser(): Promise<UserData> {
-// //   const response = await api.get<UserData>("/auth/user/");
-// //   return response.data;
-// // }
-// // src/api/auth.ts
-// import api, { storeTokens, clearTokens } from "./api";
-
-// export interface LoginCredentials {
-//   username: string;
-//   password: string;
-// }
-
-// export interface RegisterData {
-//   username: string;
-//   email: string;
-//   phone: string;
-//   role: "driver" | "client";
-//   password: string;
-//   license_number?: string;
-//   frequent_location?: string;
-//   personalID?: File;
-// }
-
-// export interface TokenPair {
-//   access: string;
-//   refresh: string;
-// }
-
-// export interface UserData {
-//   id: number;
-//   username: string;
-//   role: string;
-// }
-
-// export async function loginUser(creds: LoginCredentials): Promise<{ tokens: TokenPair; user: UserData }> {
-//   console.log("Sending login payload:", {
-//     username: creds.username,
-//     password: creds.password,
-//   });
-//   try {
-//     const response = await api.post<{
-//       tokens: { access: string; refresh: string };
-//       user: UserData;
-//     }>("/auth/token/login/", {
-//       username: creds.username,
-//       password: creds.password,
-//     });
-//     const { access, refresh } = response.data.tokens;
-//     storeTokens(access, refresh);
-//     return response.data;
-//   } catch (error: any) {
-//     console.error("Login error:", error.response?.data);
-//     throw error;
-//   }
-// }
-
-// export async function registerUser(data: RegisterData): Promise<{ tokens: TokenPair; user: UserData }> {
-//   const formData = new FormData();
-//   formData.append("username", data.username);
-//   formData.append("email", data.email);
-//   formData.append("phone", data.phone);
-//   formData.append("role", data.role);
-//   formData.append("password", data.password);
-//   if (data.role === "driver") {
-//     if (data.license_number) formData.append("license_number", data.license_number);
-//     if (data.frequent_location) formData.append("frequent_location", data.frequent_location);
-//     if (data.personalID) formData.append("personalID", data.personalID);
-//   }
-
-//   console.log("Sending register payload:", Object.fromEntries(formData));
-//   try {
-//     const response = await api.post<{
-//       tokens: { access: string; refresh: string };
-//       user: UserData;
-//     }>("/auth/register/", formData, {
-//       headers: { "Content-Type": "multipart/form-data" },
-//     });
-//     const { access, refresh } = response.data.tokens;
-//     storeTokens(access, refresh);
-//     return response.data;
-//   } catch (error: any) {
-//     console.error("Register error:", error.response?.data);
-//     throw error;
-//   }
-// }
-
-// export function logoutUser() {
-//   clearTokens();
-// }
-
-// export async function fetchCurrentUser(): Promise<UserData> {
-//   try {
-//     const response = await api.get<UserData>("/auth/user/");
-//     return response.data;
-//   } catch (error: any) {
-//     console.error("Fetch user error:", error.response?.data);
-//     throw error;
-//   }
-// }
 // src/api/auth.ts
 import api, { storeTokens, clearTokens } from "./api";
 import { AxiosError } from "axios";
@@ -181,6 +5,21 @@ import { AxiosError } from "axios";
 export interface LoginCredentials {
   username: string;
   password: string;
+}
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  phone: string;
+  role: "shop" | "vet";
+  password: string;
+  shop_name?: string;
+  shop_email?: string;
+  shop_phone?: string;
+  shop_address?: string;
+  license_number?: string;
+  vet_email?: string;
+  vet_phone?: string;
 }
 
 export interface SupplierRegisterData {
@@ -234,6 +73,42 @@ export async function loginUser(creds: LoginCredentials): Promise<{ tokens: Toke
   }
 }
 
+export async function registerUser(data: RegisterData): Promise<{ tokens: TokenPair; user: UserData }> {
+  const formData = new FormData();
+  formData.append("username", data.username);
+  formData.append("email", data.email);
+  formData.append("phone", data.phone);
+  formData.append("role", data.role);
+  formData.append("password", data.password);
+  if (data.role === "shop") {
+    if (data.shop_name) formData.append("shop_name", data.shop_name);
+    if (data.shop_email) formData.append("shop_email", data.shop_email);
+    if (data.shop_phone) formData.append("shop_phone", data.shop_phone);
+    if (data.shop_address) formData.append("shop_address", data.shop_address);
+  } else if (data.role === "vet") {
+    if (data.license_number) formData.append("license_number", data.license_number);
+    if (data.vet_email) formData.append("vet_email", data.vet_email);
+    if (data.vet_phone) formData.append("vet_phone", data.vet_phone);
+  }
+
+  console.log("Sending register payload:", Object.fromEntries(formData));
+  try {
+    const response = await api.post<{
+      access: string;
+      refresh: string;
+      user: UserData;
+    }>("/auth/register/", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    const { access, refresh, user } = response.data;
+    storeTokens(access, refresh);
+    return { tokens: { access, refresh }, user };
+  } catch (error: any) {
+    console.error("Register error:", error.response?.data);
+    throw new Error(error.response?.data?.detail || "Registration failed");
+  }
+}
+
 export async function registerSupplier(data: SupplierRegisterData): Promise<{ tokens: TokenPair; user: UserData }> {
   const formData = new FormData();
   formData.append("email", data.email);
@@ -246,9 +121,9 @@ export async function registerSupplier(data: SupplierRegisterData): Promise<{ to
   console.log("Sending supplier register payload:", Object.fromEntries(formData));
   try {
     const response = await api.post<{
+      user: UserData;
       access: string;
       refresh: string;
-      user: UserData;
     }>("/auth/register-supplier/", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
@@ -271,9 +146,9 @@ export async function registerCustomer(data: CustomerRegisterData): Promise<{ to
   console.log("Sending customer register payload:", Object.fromEntries(formData));
   try {
     const response = await api.post<{
+      user: UserData;
       access: string;
       refresh: string;
-      user: UserData;
     }>("/auth/register-customer/", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
