@@ -12,7 +12,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { PhoneInput } from "@/components/PhoneInput";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext.tsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
@@ -22,24 +22,33 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<"driver" | "client" | "">("");
+  const [role, setRole] = useState<"shop" | "vet" | "">("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [shop_name, setShopName] = useState("");
+  const [shop_email, setShopEmail] = useState("");
+  const [shop_phone, setShopPhone] = useState("");
+  const [shop_address, setShopAddress] = useState("");
   const [license_number, setLicenseNumber] = useState("");
-  const [frequent_location, setFrequentLocation] = useState("");
-  const [personalID, setPersonalID] = useState<File | null>(null);
+  const [vet_email, setVetEmail] = useState("");
+  const [vet_phone, setVetPhone] = useState("");
 
-  const { register, loading } = useAuth();
+  const { registerUser, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as any)?.from?.pathname || "/dashboard";
+  const from = (location.state as any)?.from?.pathname || "/home";
 
-  const handleRoleChange = (newRole: "driver" | "client") => {
+  const handleRoleChange = (newRole: "shop" | "vet") => {
     setRole(newRole);
-    if (newRole === "client") {
+    if (newRole === "vet") {
+      setShopName("");
+      setShopEmail("");
+      setShopPhone("");
+      setShopAddress("");
+    } else {
       setLicenseNumber("");
-      setFrequentLocation("");
-      setPersonalID(null);
+      setVetEmail("");
+      setVetPhone("");
     }
   };
 
@@ -66,13 +75,21 @@ export default function RegisterPage() {
         toast.error("Password must be at least 8 characters long.");
         return false;
       }
-    } else if (step === 3 && role === "driver") {
-      if (!license_number || !frequent_location || !personalID) {
-        toast.error("Please provide all driver information.");
+    } else if (step === 3) {
+      if (role === "shop" && (!shop_name || !shop_email || !shop_phone)) {
+        toast.error("Please provide all shop information.");
         return false;
       }
-      if (!personalID.type.startsWith("image/")) {
-        toast.error("Personal ID must be an image file.");
+      if (role === "vet" && (!license_number || !vet_email || !vet_phone)) {
+        toast.error("Please provide all veterinary information.");
+        return false;
+      }
+      if (role === "shop" && shop_email && !shop_email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+        toast.error("Please enter a valid shop email address.");
+        return false;
+      }
+      if (role === "vet" && vet_email && !vet_email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+        toast.error("Please enter a valid veterinary email address.");
         return false;
       }
     }
@@ -81,18 +98,12 @@ export default function RegisterPage() {
 
   const handleNext = () => {
     if (validateStep()) {
-      if (step === 1 && role === "client") {
-        setStep(2);
-      } else if (step < (role === "driver" ? 3 : 2)) {
-        setStep(step + 1);
-      }
+      setStep(step + 1);
     }
   };
 
   const handlePrevious = () => {
-    if (step === 2 && role === "client") {
-      setStep(1);
-    } else if (step > 1) {
+    if (step > 1) {
       setStep(step - 1);
     }
   };
@@ -105,26 +116,27 @@ export default function RegisterPage() {
         username,
         email,
         phone,
-        role: role as "driver" | "client",
+        role: role as "shop" | "vet",
         password,
-        ...(role === "driver" && {
+        ...(role === "shop" && {
+          shop_name,
+          shop_email,
+          shop_phone,
+          shop_address,
+        }),
+        ...(role === "vet" && {
           license_number,
-          frequent_location,
-          personalID,
+          vet_email,
+          vet_phone,
         }),
       };
 
-      await register(regData);
+      await registerUser(regData);
       toast.success("Registration successful!");
       navigate(from, { replace: true });
     } catch (err: any) {
-      if (err.response?.data?.error?.details) {
-        const errors = err.response.data.error.details;
-        const errorMessage = Object.values(errors).flat().join(" ") || "Registration failed.";
-        toast.error(errorMessage);
-      } else {
-        toast.error("Registration failed. Please try again.");
-      }
+      const errorMessage = err.message || "Registration failed. Please try again.";
+      toast.error(errorMessage);
     }
   }
 
@@ -138,12 +150,7 @@ export default function RegisterPage() {
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">Create Your Account</h1>
                   <p className="text-muted-foreground text-balance">
-                    Step {step} of {role === "driver" ? 3 : 2}:{" "}
-                    {step === 1
-                      ? "Account Details"
-                      : step === 2
-                      ? "Password Setup"
-                      : "Driver Information"}
+                    Step {step} of 3: {step === 1 ? "Account Details" : step === 2 ? "Password Setup" : "Role Information"}
                   </p>
                 </div>
 
@@ -188,8 +195,8 @@ export default function RegisterPage() {
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="driver">Driver</SelectItem>
-                          <SelectItem value="client">Client</SelectItem>
+                          <SelectItem value="shop">Shop Staff</SelectItem>
+                          <SelectItem value="vet">Veterinary</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -223,7 +230,53 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {step === 3 && role === "driver" && (
+                {step === 3 && role === "shop" && (
+                  <div className="grid gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="shop-name">Shop Name</Label>
+                      <Input
+                        id="shop-name"
+                        placeholder="Enter shop name"
+                        value={shop_name}
+                        onChange={(e) => setShopName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="shop-email">Shop Email</Label>
+                      <Input
+                        id="shop-email"
+                        type="email"
+                        placeholder="shop@example.com"
+                        value={shop_email}
+                        onChange={(e) => setShopEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="shop-phone">Shop Phone</Label>
+                      <PhoneInput
+                        id="shop-phone"
+                        value={shop_phone}
+                        onChange={(e) => setShopPhone(e.target.value)}
+                        placeholder="Enter shop phone number"
+                        defaultCountry="RW"
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="shop-address">Shop Address</Label>
+                      <Input
+                        id="shop-address"
+                        placeholder="Enter shop address"
+                        value={shop_address}
+                        onChange={(e) => setShopAddress(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {step === 3 && role === "vet" && (
                   <div className="grid gap-4">
                     <div className="grid gap-2">
                       <Label htmlFor="license-number">License Number</Label>
@@ -236,22 +289,24 @@ export default function RegisterPage() {
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="frequent-location">Frequent Location</Label>
+                      <Label htmlFor="vet-email">Veterinary Email</Label>
                       <Input
-                        id="frequent-location"
-                        placeholder="Enter frequent location"
-                        value={frequent_location}
-                        onChange={(e) => setFrequentLocation(e.target.value)}
+                        id="vet-email"
+                        type="email"
+                        placeholder="vet@example.com"
+                        value={vet_email}
+                        onChange={(e) => setVetEmail(e.target.value)}
                         required
                       />
                     </div>
                     <div className="grid gap-2">
-                      <Label htmlFor="personal-id">Personal ID Upload</Label>
-                      <Input
-                        id="personal-id"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setPersonalID(e.target.files?.[0] || null)}
+                      <Label htmlFor="vet-phone">Veterinary Phone</Label>
+                      <PhoneInput
+                        id="vet-phone"
+                        value={vet_phone}
+                        onChange={(e) => setVetPhone(e.target.value)}
+                        placeholder="Enter veterinary phone number"
+                        defaultCountry="RW"
                         required
                       />
                     </div>
@@ -264,7 +319,7 @@ export default function RegisterPage() {
                       Previous
                     </Button>
                   )}
-                  {step < (role === "driver" ? 3 : 2) ? (
+                  {step < 3 ? (
                     <Button onClick={handleNext} disabled={loading} className="ml-auto">
                       Next
                     </Button>
