@@ -1,30 +1,102 @@
-# React + TypeScript + Vite
+# Butcher Shop Management System/ ERP + CRM + Vets approval
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modular,  platform for managing multi‑tenant butcher shops in Rwanda. Provides core functionality for shop owners, suppliers, veterinarians, and end‑customers—including inventory, orders, dynamic JSON‑driven documents, email templates, and more—all secured with JWT authentication.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## Expanding the ESLint configuration
+- **Multi‑Role Authentication**  
+  - `shop` (butcher owner/staff)  
+  - `supplier` (external suppliers)  
+  - `vet` (veterinarians)  
+  - `client` (end customers)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Shop Management**  
+  - Register shop profiles with name, contact, address  
+  - Owner/staff can manage suppliers, inventory, orders, and document templates
 
-- Configure the top-level `parserOptions` property like this:
+- **Supplier Lifecycle**  
+  - Invite suppliers by email (with tokenized links)  
+  - Suppliers respond, submit quotations, record deliveries  
+  - Shop staff approve/reject quotations and deliveries
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+- **Inventory Module**  
+  - Categories, items (SKUs), stock entries (incoming) and exits (sales)  
+  - Link stock entries to suppliers
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- **Customer Orders**  
+  - Clients browse shops & items  
+  - Place orders with line items; shops confirm, ship, deliver, or cancel
+
+- **Dynamic Documents**  
+  - Define JSON‑schema document templates (e.g. delivery notes, checklists)  
+  - Fill out form instances via API, store as JSON  
+  - Render JSON into printable PDFs with WeasyPrint
+
+- **Email Template Engine**  
+  - Per‑shop, editable subject/body templates stored in database  
+  - Fallback to file‑based defaults  
+  - Render with context and send via SMTP (Gmail)
+
+- **Veterinarian Approvals**  
+  - Pre‑ and post‑slaughter inspections on cows  
+  - Slaughter approval records per animal  
+  - Vets have cross‑shop access; shop staff see status
+
+---
+
+## 📦 Tech Stack
+
+- **Backend**  
+  - Python 3.10+  
+  - Django 4.x  
+  - Django REST Framework  
+  - djangorestframework-simplejwt (JWT auth)  
+  - WeasyPrint (PDF generation)
+
+- **Database**  
+  - PostgreSQL
+
+- **Email**  
+  - SMTP via Gmail (App Password)
+
+- **Deployment**  
+  - Docker & docker‑compose (optional)  
+  - GitHub Actions (CI/CD)
+
+---
+
+## 🏗 Architecture
+
+- Client (Web/Mobile)
+- ↕ JSON over HTTPS
+- Django API (DRF + JWT + Email Templates)
+- ↕ Psycopg2
+- PostgreSQL
+
+
+Apps:
+- `users`  – custom `User` + `ShopProfile`/`VetProfile`/`Customer`/`SupplierProfile`  
+- `clients` – shop directory & customer profiles  
+- `inventory` – categories, items, stock entries/exits  
+- `suppliers` – supplier profiles, invitations, quotations, deliveries  
+- `orders`  – customer orders & line items  
+- `docs`   – dynamic JSON document templates & instances  
+- `vets`   – veterinarian inspections & slaughter approvals  
+- `email_config` – editable email templates per shop  
+
+---
+
+## 🔧 Installation & Setup
+
+1. **Clone & create *
+
+## ⚙ Configuration
+- settings.ts is configured for JWT auth, PostgreSQL, Gmail SMTP, and Africa/Kigali timezone.
+
+## 📁 Directory Structure
+
+
+## LICENSE 
+<a href="LICENSE">see here</a>
