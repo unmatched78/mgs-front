@@ -6,7 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Home from "./pages/shop-dashboard";
-// import VetDashboard from "./pages/vet-dashboard";
+import VetDashboard from "./pages/vet-dashboard";
 import ClientDashboard from "./pages/client-dashboard";  
 // import SupplierDashboard from "./pages/supplier-dashboard";
 // Importing the necessary components and hooks
@@ -21,7 +21,7 @@ function App() {
         <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
         <Route
           path="/home"
-          element={<PrivateRoute allowedRole="shop" children={<ClientDashboard />} />}
+          element={<PrivateRoute allowedRole="shop" children={<VetDashboard />} />}
         />
         <Route path="*" element={<Navigate to={user ? "/home" : "/login"} replace />} />
         {/* <Route
