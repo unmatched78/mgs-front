@@ -8,7 +8,6 @@ import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
 import InventoryOverview from "../components/dashboard/InventoryOverview";
-import OrderManagement from "../components/dashboard/OrderManagement";
 import DocumentCenter from "../components/dashboard/DocumentCenter";
 import CommunicationPanel from "../components/dashboard/CommunicationPanel";
 
@@ -19,29 +18,9 @@ interface HomeProps {
   userName?: string;
 }
 
-const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
+const Home = ({ userRole = "customer", userName = "John Doe" }: HomeProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-
-  // Mock data for dashboard metrics
-  const metrics = {
-    totalSales: "€12,450",
-    pendingOrders: "24",
-    lowStockItems: "8",
-    expiringItems: "5",
-  };
-
-  // Mock data for pending tasks
-  const pendingTasks = [
-    { id: 1, title: "Approve delivery for Order #1234", priority: "high" },
-    { id: 2, title: "Review expiring inventory items", priority: "medium" },
-    {
-      id: 3,
-      title: "Confirm supplier delivery for tomorrow",
-      priority: "medium",
-    },
-    { id: 4, title: "Sign veterinary certificates", priority: "high" },
-  ];
 
   // Filter sidebar items based on user role
   const getSidebarItems = () => {
@@ -50,51 +29,19 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
         id: "overview",
         label: "Dashboard",
         icon: "grid",
-        roles: ["staff", "supplier", "veterinarian", "customer"],
-      },
-      {
-        id: "inventory",
-        label: "Inventory",
-        icon: "package",
-        roles: ["staff"],
+        roles: ["customer"],
       },
       {
         id: "orders",
         label: "Orders",
         icon: "shopping-cart",
-        roles: ["staff", "customer"],
-      },
-      { id: "customers", label: "Customers", icon: "users", roles: ["staff"] },
-      { id: "suppliers", label: "Suppliers", icon: "truck", roles: ["staff"] },
-      {
-        id: "documents",
-        label: "Documents",
-        icon: "file-text",
-        roles: ["staff", "supplier", "veterinarian"],
-      },
-      {
-        id: "communications",
-        label: "Communications",
-        icon: "mail",
-        roles: ["staff"],
-      },
-      {
-        id: "slaughter-approvals",
-        label: "Slaughter Approvals",
-        icon: "clipboard-check",
-        roles: ["veterinarian"],
-      },
-      {
-        id: "certificates",
-        label: "Certificates",
-        icon: "award",
-        roles: ["supplier", "veterinarian"],
+        roles: ["customer"],
       },
       {
         id: "settings",
         label: "Settings",
         icon: "settings",
-        roles: ["staff", "supplier", "veterinarian", "customer"],
+        roles: ["customer"],
       },
     ];
 
@@ -207,141 +154,16 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">
-                  {userRole === "supplier"
-                    ? "Supplier Portal"
-                    : userRole === "customer"
-                      ? "Customer Portal"
-                      : "Dashboard"}
+                  Customer Portal
                 </h1>
                 <div className="flex space-x-2">
-                  {userRole === "staff" && (
-                    <>
-                      <Button variant="outline" size="sm">
-                        Export
-                      </Button>
-                      <Button size="sm">New Order</Button>
-                    </>
-                  )}
-                  {userRole === "customer" && (
                     <Button size="sm">Place Order</Button>
-                  )}
-                  {userRole === "supplier" && (
-                    <Button size="sm">Upload Documents</Button>
-                  )}
+               
                 </div>
               </div>
 
-              {/* Metrics */}
-              {userRole === "staff" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Total Sales (Today)
-                        </p>
-                        <p className="text-2xl font-bold">
-                          {metrics.totalSales}
-                        </p>
-                        <p className="text-xs text-green-500">
-                          +5.2% from yesterday
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Pending Orders
-                        </p>
-                        <p className="text-2xl font-bold">
-                          {metrics.pendingOrders}
-                        </p>
-                        <p className="text-xs text-amber-500">
-                          4 require attention
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Low Stock Items
-                        </p>
-                        <p className="text-2xl font-bold">
-                          {metrics.lowStockItems}
-                        </p>
-                        <p className="text-xs text-destructive">
-                          Reorder required
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Expiring Soon
-                        </p>
-                        <p className="text-2xl font-bold">
-                          {metrics.expiringItems}
-                        </p>
-                        <p className="text-xs text-destructive">
-                          Within 3 days
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
-              {/* Supplier Metrics */}
-              {userRole === "supplier" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Active Orders
-                        </p>
-                        <p className="text-2xl font-bold">12</p>
-                        <p className="text-xs text-green-500">
-                          3 new this week
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Pending Deliveries
-                        </p>
-                        <p className="text-2xl font-bold">8</p>
-                        <p className="text-xs text-amber-500">2 due today</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Documents to Upload
-                        </p>
-                        <p className="text-2xl font-bold">3</p>
-                        <p className="text-xs text-destructive">
-                          Certificates needed
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-
               {/* Customer Metrics */}
-              {userRole === "customer" && (
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Card>
                     <CardContent className="p-6">
@@ -383,192 +205,10 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
                     </CardContent>
                   </Card>
                 </div>
-              )}
-
-              {/* Veterinarian Metrics */}
-              {userRole === "veterinarian" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Pending Approvals
-                        </p>
-                        <p className="text-2xl font-bold">7</p>
-                        <p className="text-xs text-amber-500">3 urgent</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Certificates Issued
-                        </p>
-                        <p className="text-2xl font-bold">24</p>
-                        <p className="text-xs text-green-500">This month</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm text-muted-foreground">
-                          Expiring Licenses
-                        </p>
-                        <p className="text-2xl font-bold">2</p>
-                        <p className="text-xs text-destructive">
-                          Renewal required
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
 
               {/* Main Dashboard Content */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Staff Dashboard */}
-                {userRole === "staff" && (
-                  <>
-                    {/* Main Content Area */}
-                    <div className="lg:col-span-2 space-y-6">
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Inventory Overview</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <InventoryOverview />
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Recent Orders</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <OrderManagement compact={true} />
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* Sidebar */}
-                    <div className="space-y-6">
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Pending Tasks</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-4">
-                            {pendingTasks.map((task) => (
-                              <div
-                                key={task.id}
-                                className="flex items-start space-x-2 p-3 rounded-md bg-muted/50"
-                              >
-                                <div className="flex-1">
-                                  <p className="text-sm">{task.title}</p>
-                                </div>
-                                <Badge
-                                  variant={
-                                    task.priority === "high"
-                                      ? "destructive"
-                                      : "outline"
-                                  }
-                                >
-                                  {task.priority}
-                                </Badge>
-                              </div>
-                            ))}
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Document Approvals</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <DocumentCenter compact={true} />
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </>
-                )}
-
-                {/* Supplier Dashboard */}
-                {userRole === "supplier" && (
-                  <>
-                    <div className="lg:col-span-2 space-y-6">
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Recent Purchase Orders</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
-                              <div>
-                                <p className="font-medium">PO-2024-001</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Beef cuts - 50kg
-                                </p>
-                              </div>
-                              <Badge variant="outline">Pending</Badge>
-                            </div>
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
-                              <div>
-                                <p className="font-medium">PO-2024-002</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Pork shoulder - 30kg
-                                </p>
-                              </div>
-                              <Badge>Confirmed</Badge>
-                            </div>
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
-                              <div>
-                                <p className="font-medium">PO-2024-003</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Lamb legs - 25kg
-                                </p>
-                              </div>
-                              <Badge variant="secondary">Delivered</Badge>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="space-y-6">
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Required Documents</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                              <p className="text-sm font-medium text-amber-800">
-                                Health Certificate
-                              </p>
-                              <p className="text-xs text-amber-600">
-                                Due: Tomorrow
-                              </p>
-                            </div>
-                            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                              <p className="text-sm font-medium text-red-800">
-                                Quality Assurance
-                              </p>
-                              <p className="text-xs text-red-600">
-                                Overdue: 2 days
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </>
-                )}
-
                 {/* Customer Dashboard */}
-                {userRole === "customer" && (
                   <>
                     <div className="lg:col-span-2 space-y-6">
                       <Card>
@@ -655,72 +295,6 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
                       </Card>
                     </div>
                   </>
-                )}
-
-                {/* Veterinarian Dashboard */}
-                {userRole === "veterinarian" && (
-                  <>
-                    <div className="lg:col-span-2 space-y-6">
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Pending Approvals</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-4">
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
-                              <div>
-                                <p className="font-medium">
-                                  Slaughter Request #SR-001
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Cattle - Health inspection required
-                                </p>
-                              </div>
-                              <Badge variant="destructive">Urgent</Badge>
-                            </div>
-                            <div className="flex items-center justify-between p-4 border rounded-lg">
-                              <div>
-                                <p className="font-medium">
-                                  Slaughter Request #SR-002
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Pork - Standard inspection
-                                </p>
-                              </div>
-                              <Badge variant="outline">Pending</Badge>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="space-y-6">
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <CardTitle>Recent Activity</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            <div className="text-sm">
-                              <p className="font-medium">Certificate issued</p>
-                              <p className="text-muted-foreground">
-                                Health cert. #HC-2024-045
-                              </p>
-                            </div>
-                            <div className="text-sm">
-                              <p className="font-medium">
-                                Inspection completed
-                              </p>
-                              <p className="text-muted-foreground">
-                                Facility audit passed
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </>
-                )}
               </div>
             </div>
           )}
@@ -741,12 +315,11 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">
-                  {userRole === "customer" ? "My Orders" : "Order Management"}
+                  My Orders
                 </h1>
-                {userRole === "staff" && <Button>Create New Order</Button>}
-                {userRole === "customer" && <Button>Place New Order</Button>}
+                <Button>Place New Order</Button>
               </div>
-              {userRole === "customer" ? (
+
                 <Card>
                   <CardContent className="p-6">
                     <div className="text-center py-8">
@@ -764,9 +337,7 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
                     </div>
                   </CardContent>
                 </Card>
-              ) : (
-                <OrderManagement />
-              )}
+
             </div>
           )}
 
@@ -791,98 +362,6 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
               <CommunicationPanel />
             </div>
           )}
-
-          {/* Slaughter Approvals Tab (Veterinarian specific) */}
-          {activeTab === "slaughter-approvals" &&
-            userRole === "veterinarian" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-2xl font-bold">Slaughter Approvals</h1>
-                  <div className="flex space-x-2">
-                    <Button variant="outline">History</Button>
-                    <Button>Approve Selected</Button>
-                  </div>
-                </div>
-                <Tabs defaultValue="pending">
-                  <TabsList>
-                    <TabsTrigger value="pending">Pending Approval</TabsTrigger>
-                    <TabsTrigger value="approved">Approved</TabsTrigger>
-                    <TabsTrigger value="rejected">Rejected</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="pending">
-                    <Card>
-                      <CardContent className="p-6">
-                        <DocumentCenter filterType="slaughter-approval" />
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                  <TabsContent value="approved">
-                    <Card>
-                      <CardContent className="p-6">
-                        <p className="text-muted-foreground">
-                          Approved documents will appear here.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                  <TabsContent value="rejected">
-                    <Card>
-                      <CardContent className="p-6">
-                        <p className="text-muted-foreground">
-                          Rejected documents will appear here.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            )}
-
-          {/* Certificates Tab (Supplier specific) */}
-          {activeTab === "certificates" &&
-            (userRole === "supplier" || userRole === "veterinarian") && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-2xl font-bold">Certificates</h1>
-                  <Button>Upload Certificate</Button>
-                </div>
-                <Tabs defaultValue="active">
-                  <TabsList>
-                    <TabsTrigger value="active">Active</TabsTrigger>
-                    <TabsTrigger value="expired">Expired</TabsTrigger>
-                    <TabsTrigger value="pending">Pending</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="active">
-                    <Card>
-                      <CardContent className="p-6">
-                        <DocumentCenter
-                          filterType="certificates"
-                          status="active"
-                        />
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                  <TabsContent value="expired">
-                    <Card>
-                      <CardContent className="p-6">
-                        <p className="text-muted-foreground">
-                          Expired certificates will appear here.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                  <TabsContent value="pending">
-                    <Card>
-                      <CardContent className="p-6">
-                        <p className="text-muted-foreground">
-                          Pending certificates will appear here.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                </Tabs>
-              </div>
-            )}
 
           {/* Settings Tab */}
           {activeTab === "settings" && (
