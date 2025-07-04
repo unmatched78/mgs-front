@@ -92,9 +92,6 @@ Apps:
 
 1. **Clone & create *
 
-## ⚙ Configuration
-- settings.ts is configured for JWT auth, PostgreSQL, Gmail SMTP, and Africa/Kigali timezone.
-
 ## 📁 Directory Structure
 
 
