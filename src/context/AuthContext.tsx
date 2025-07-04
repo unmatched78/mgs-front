@@ -1,9 +1,10 @@
 // // src/context/AuthContext.tsx
 // import { createContext, useContext, useEffect, useState } from "react";
 // import type { ReactNode } from "react";
-// import { loginUser, registerUser, registerSupplier, registerCustomer, logoutUser as apiLogout, fetchCurrentUser } from "../api/auth";
+// import { loginUser, registerUser, registerSupplier, registerCustomer, logoutUser as apiLogout } from "../api/auth";
 // import type { RegisterData, SupplierRegisterData, CustomerRegisterData, UserData } from "../api/auth";
-// import { getStoredAccessToken, getStoredRefreshToken, clearTokens } from "../api/api";
+// import { getStoredAccessToken, getStoredRefreshToken,storeTokens, clearTokens, setUpdateUserCallback } from "../api/api";
+// import axios from "axios";
 
 // interface AuthContextType {
 //   user: UserData | null;
@@ -34,15 +35,31 @@
 //   const [loading, setLoading] = useState<boolean>(true);
 
 //   useEffect(() => {
+//     // Register callback for Axios interceptor to update user state
+//     setUpdateUserCallback((userData: UserData | null) => {
+//       setUser(userData);
+//     });
+
 //     async function initialize() {
 //       const token = getStoredAccessToken();
 //       const refresh = getStoredRefreshToken();
 //       if (token && refresh) {
 //         try {
-//           const data = await fetchCurrentUser();
-//           setUser(data);
-//           setAccessToken(token);
-//         } catch {
+//           const response = await axios.post<{
+//             access: string;
+//             user: UserData;
+//           }>(
+//             `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api"}/auth/refresh/`,
+//             { refresh },
+//             { headers: { "Content-Type": "application/json" } }
+//           );
+//           const { access, user } = response.data;
+//           setUser(user);
+//           setAccessToken(access);
+//           // Update tokens in localStorage
+//           storeTokens(access, refresh);
+//         } catch (error) {
+//           console.error("Session restoration failed:", error);
 //           clearTokens();
 //           setUser(null);
 //           setAccessToken(null);
@@ -142,8 +159,11 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { loginUser, registerUser, registerSupplier, registerCustomer, logoutUser as apiLogout } from "../api/auth";
 import type { RegisterData, SupplierRegisterData, CustomerRegisterData, UserData } from "../api/auth";
-import { getStoredAccessToken, getStoredRefreshToken,storeTokens, clearTokens, setUpdateUserCallback } from "../api/api";
+import { getStoredAccessToken, getStoredRefreshToken, clearTokens, setUpdateUserCallback, storeTokens } from "../api/api";
 import axios from "axios";
+
+// Debug import to ensure storeTokens is available
+console.log("storeTokens imported:", typeof storeTokens); // Should log "function"
 
 interface AuthContextType {
   user: UserData | null;
@@ -176,14 +196,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Register callback for Axios interceptor to update user state
     setUpdateUserCallback((userData: UserData | null) => {
+      console.log("Updating user from interceptor:", userData);
       setUser(userData);
     });
 
     async function initialize() {
       const token = getStoredAccessToken();
       const refresh = getStoredRefreshToken();
-      if (token && refresh) {
+      if (token && refresh && !user) { // Avoid re-running if user is already set
         try {
+          console.log("Attempting session restoration with /auth/refresh/");
           const response = await axios.post<{
             access: string;
             user: UserData;
@@ -192,22 +214,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
             { refresh },
             { headers: { "Content-Type": "application/json" } }
           );
-          const { access, user } = response.data;
-          setUser(user);
+          console.log("Session restoration response:", response.data);
+          const { access, user: fetchedUser } = response.data;
+          setUser(fetchedUser);
           setAccessToken(access);
-          // Update tokens in localStorage
-          storeTokens(access, refresh);
-        } catch (error) {
-          console.error("Session restoration failed:", error);
-          clearTokens();
-          setUser(null);
-          setAccessToken(null);
+          if (typeof storeTokens === "function") {
+            storeTokens(access, refresh);
+            console.log("Tokens stored:", { access, refresh });
+          } else {
+            console.error("storeTokens is not a function:", storeTokens);
+            throw new Error("storeTokens is not defined");
+          }
+        } catch (error: any) {
+          console.error("Session restoration failed:", error.message, error.response?.data);
+          if (error.response?.status === 401 || error.response?.status === 400) {
+            clearTokens();
+            setUser(null);
+            setAccessToken(null);
+            console.log("Cleared tokens due to invalid refresh token");
+          }
         }
+      } else {
+        console.log("No tokens found or user already set:", { token, refresh, user });
       }
       setLoading(false);
     }
     initialize();
-  }, []);
+  }, []); // Empty dependency array to run once on mount
 
   async function login(username: string, password: string) {
     console.log("AuthContext: login called");
@@ -227,6 +260,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function registerUser(data: RegisterData) {
     console.log("AuthContext: registerUser called with:", data);
+    set没了
     setLoading(true);
     try {
       const { tokens, user } = await registerUser(data);

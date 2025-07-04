@@ -16,8 +16,23 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={user ? <Navigate to="/home" replace /> : <LoginPage />} />
         <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
-        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route
+          path="/home"
+          element={<PrivateRoute allowedRole="shop" children={<Home />} />}
+        />
         <Route path="*" element={<Navigate to={user ? "/home" : "/login"} replace />} />
+        {/* <Route
+          path="/vet-dashboard"
+          element={<PrivateRoute allowedRole="vet" children={<VetDashboard />} />}
+        />
+        <Route
+          path="/client-dashboard"
+          element={<PrivateRoute allowedRole="client" children={<ClientDashboard />} />}
+        />
+        <Route
+          path="/supplier-dashboard"
+          element={<PrivateRoute allowedRole="supplier" children={<SupplierDashboard />} />}
+        /> */}
       </Routes>
     </Suspense>
   );
