@@ -19,7 +19,7 @@ interface HomeProps {
   userName?: string;
 }
 
-const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
+const Home = ({ userRole = "supplier", userName = "John Doe" }: HomeProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
@@ -111,7 +111,7 @@ const Home = ({ userRole = "staff", userName = "John Doe" }: HomeProps) => {
       >
         <div className="p-4 flex items-center justify-between border-b border-border">
           <h1 className={`font-bold text-xl ${!isSidebarOpen && "hidden"}`}>
-            Butcher ERP
+            Ikiraro Mgs
           </h1>
           <Button
             variant="ghost"
