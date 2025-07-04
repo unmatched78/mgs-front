@@ -14,7 +14,7 @@ import {
 import { PhoneInput } from "@/components/PhoneInput";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 
 export default function RegisterPage() {
