@@ -2,6 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import LanguageSelector from "@/components/LanguageSelector";
 
 export default function LandingPage() {
     return (
@@ -11,6 +12,7 @@ export default function LandingPage() {
                 <nav className="mx-auto flex max-w-7xl items-center justify-between p-6">
                     <div className="text-2xl font-bold text-gray-900">Ikiraro Mgs</div>
                     <div className="flex gap-4">
+                        <LanguageSelector className="mb-2" />
                         <Link to="/login">
                             <Button variant="outline">Login</Button>
                         </Link>
