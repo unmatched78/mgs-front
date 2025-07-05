@@ -726,6 +726,21 @@ const InventoryOverview = ({ compact = false }: { compact?: boolean }) => {
         return "default";
     }
   };
+  //trends tabs
+  const [trends, setTrends] = useState<{ increasing: string[]; decreasing: string[] }>({ increasing: [], decreasing: [] });
+
+  useEffect(() => {
+    async function fetchTrends() {
+      if (activeTab !== "trends") return;
+      try {
+        const response = await api.get<{ increasing: string[]; decreasing: string[] }>("/inventory/trends/");
+        setTrends(response.data);
+      } catch (err: any) {
+        toast.error("Failed to load trends");
+      }
+    }
+    fetchTrends();
+  }, [activeTab]);
 
   const handleScanBarcode = async () => {
     setShowScanner(!showScanner);
@@ -771,6 +786,7 @@ const InventoryOverview = ({ compact = false }: { compact?: boolean }) => {
   if (error) {
     return <div className="p-4 text-center text-destructive">{error}</div>;
   }
+
 
   return (
     <div className="w-full bg-background p-4">
@@ -1114,19 +1130,20 @@ const InventoryOverview = ({ compact = false }: { compact?: boolean }) => {
                 <p className="text-xs text-muted-foreground">Showing data for the last 30 days</p>
               </div>
               <Separator className="my-4" />
+              {/* // In trends tab JSX: */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center">
                   <TrendingUp className="h-5 w-5 text-green-500 mr-2" />
                   <div>
                     <p className="font-medium">Increasing Stock</p>
-                    <p className="text-sm text-muted-foreground">Beef, Poultry</p>
+                    <p className="text-sm text-muted-foreground">{trends.increasing.join(", ") || "None"}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
                   <TrendingDown className="h-5 w-5 text-destructive mr-2" />
                   <div>
                     <p className="font-medium">Decreasing Stock</p>
-                    <p className="text-sm text-muted-foreground">Pork, Lamb</p>
+                    <p className="text-sm text-muted-foreground">{trends.decreasing.join(", ") || "None"}</p>
                   </div>
                 </div>
               </div>
