@@ -9,7 +9,7 @@ import Home from "./pages/shop-dashboard";
 import VetDashboard from "./pages/vet-dashboard";
 import ClientDashboard from "./pages/client-dashboard";  
 import SupplierDashboard from "./pages/supplier-dashboard";
-// Importing the necessary components and hooks
+// the necessary components and hooks
 
 function App() {
   const { user } = useAuth();
