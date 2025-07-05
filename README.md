@@ -1,6 +1,6 @@
 # Butcher Shop Management System/ ERP + CRM + Vets approval
 
-A modular,  platform for managing multi‑tenant butcher shops in Rwanda. Provides core functionality for shop owners, suppliers, veterinarians, and end‑customers—including inventory, orders, dynamic JSON‑driven documents, email templates, and more—all secured with JWT authentication.
+A modular,  platform for managing multi‑tenant butcher shops in Rwanda. Provides core functionality for shop owners, suppliers, veterinarians, and end‑customers—including inventory, orders, dynamic JSON‑driven documents, email templates, and more—all secured with JWT authentication. see backend <a href="https://github.com/unmatched78/butcher_mgs">here</a>
 
 ---
 
