@@ -372,6 +372,7 @@ import { useAuth } from "../context/AuthContext.tsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import LanguageSelector from "@/components/LanguageSelector";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
@@ -505,6 +506,7 @@ export default function RegisterPage() {
     <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-3xl">
         <Card className="overflow-hidden p-0">
+          <LanguageSelector className="mb-2" />
           <CardContent className="grid p-0 md:grid-cols-2">
             <form className="p-6 md:p-8">
               <div className="flex flex-col gap-6">
