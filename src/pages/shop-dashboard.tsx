@@ -15,6 +15,7 @@ import OrderManagement from "@/components/dashboard/OrderManagement";
 import DocumentCenter from "@/components/dashboard/DocumentCenter";
 import CommunicationPanel from "@/components/dashboard/CommunicationPanel";
 import LanguageSelector from '@/components/LanguageSelector';
+import {LogoutButton} from "@/components/LogoutButton";
 import api from "@/api/api";
 
 interface Metrics {
@@ -136,6 +137,8 @@ const ShopDashboard = () => {
               <div className="ml-3">
                 <p className="text-sm font-medium">{user.username}</p>
                 <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
+                {/* logout button */}
+                <LogoutButton />
               </div>
             )}
           </div>
@@ -292,7 +295,7 @@ const ShopDashboard = () => {
                       <CardTitle>Document Approvals</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <DocumentCenter compact={true} />
+                      {/* <DocumentCenter compact={true} /> */}
                     </CardContent>
                   </Card>
                 </div>
