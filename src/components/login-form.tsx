@@ -177,6 +177,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import LanguageSelector from "@/components/LanguageSelector";
 
 export function LoginForm({
   className,
@@ -240,6 +241,7 @@ export function LoginForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
+        <LanguageSelector className="mb-2" />
         <CardContent className="grid p-0 md:grid-cols-2">
           <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
