@@ -9,6 +9,7 @@ import Home from "./pages/shop-dashboard";
 import VetDashboard from "./pages/vet-dashboard";
 import ClientDashboard from "./pages/client-dashboard";  
 import SupplierDashboard from "./pages/supplier-dashboard";
+import TemplateCanvas from "./pages/TemplateCanvas";
 // the necessary components and hooks
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
     <Suspense fallback={<p>Loading...</p>}>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/testcanvas" element={<TemplateCanvas />} />
         <Route path="/login" element={user ? <Navigate to="/home" replace /> : <LoginPage />} />
         <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
         <Route
