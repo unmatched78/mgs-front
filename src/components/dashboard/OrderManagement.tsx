@@ -1,4 +1,3 @@
-// src/components/dashboard/OrderManagement.tsx
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -56,13 +55,15 @@ import { Label } from "@/components/ui/label";
 import api from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
 
-interface InventoryItem {
+// Updated Cow interface
+interface Cow {
   id: string;
-  name: string;
+  tag_number: string;
   unit_price: number;
-  quantity: number;
+  available_quantity: number; // Calculated from stock entries minus exits
 }
 
+// Updated Order interface
 interface Order {
   id: string;
   customer: {
@@ -75,8 +76,8 @@ interface Order {
   status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
   total: number;
   lines: {
-    name: string;
-    quantity: number;
+    name: string; // Will be cow.tag_number
+    quantity: number; // Now in kilograms (decimal)
     unit_price: number;
     line_total: number;
   }[];
@@ -100,12 +101,12 @@ const OrderManagement = () => {
   const [createOrderOpen, setCreateOrderOpen] = useState<boolean>(false);
   const [createCustomerOpen, setCreateCustomerOpen] = useState<boolean>(false);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [availableItems, setAvailableItems] = useState<InventoryItem[]>([]);
+  const [availableCows, setAvailableCows] = useState<Cow[]>([]); // Changed from availableItems
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [newOrder, setNewOrder] = useState<{
     customer_id: string;
-    items: { item_id: string; quantity: number }[];
+    items: { cow_id: string; quantity: number }[]; // Changed item_id to cow_id
   }>({ customer_id: "", items: [] });
   const [newCustomer, setNewCustomer] = useState<{
     customer_name: string;
@@ -124,7 +125,7 @@ const OrderManagement = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.get<Order[]>("/orders/");
+        const response = await api.get<Order[]>("/orders/orders/");
         setOrders(Array.isArray(response.data) ? response.data : []);
       } catch (err: any) {
         const errorMessage = err.response?.data?.detail || "Failed to load orders";
@@ -138,30 +139,31 @@ const OrderManagement = () => {
     fetchOrders();
   }, [authLoading, user]);
 
-  // Fetch customers and items with polling
+  // Fetch customers and cows with polling
   useEffect(() => {
     async function fetchData() {
       if (authLoading || !user || user.role !== "shop") return;
       try {
-        const [itemsResponse, customersResponse] = await Promise.all([
-          api.get<InventoryItem[]>("/inventory/"),
+        const [cowsResponse, customersResponse] = await Promise.all([
+          api.get<Cow[]>("/inventory/cows/"), // Updated endpoint
           api.get<{ id: number; customer_name: string; customer_email: string; customer_phone: string; created: string; updated: string }[]>("/customers/"),
         ]);
+        console.log("Cows response:", cowsResponse.data);
         console.log("Customers response:", customersResponse.data);
-        setAvailableItems(Array.isArray(itemsResponse.data) ? itemsResponse.data : []);
+        setAvailableCows(Array.isArray(cowsResponse.data) ? cowsResponse.data : []);
         setCustomers(
           Array.isArray(customersResponse.data)
             ? customersResponse.data.map((customer) => ({
-                id: String(customer.id),
-                name: customer.customer_name || "Unknown",
-                email: customer.customer_email || "No email",
-                phone: customer.customer_phone || "",
-              }))
+              id: String(customer.id),
+              name: customer.customer_name || "Unknown",
+              email: customer.customer_email || "No email",
+              phone: customer.customer_phone || "",
+            }))
             : []
         );
       } catch (err: any) {
         console.error("Fetch error:", err.response?.data || err.message);
-        toast.error("Failed to load inventory or customers: " + (err.response?.data?.detail || err.message));
+        toast.error("Failed to load cows or customers: " + (err.response?.data?.detail || err.message));
       }
     }
     fetchData();
@@ -218,14 +220,17 @@ const OrderManagement = () => {
 
   const handleCreateOrder = async () => {
     if (!newOrder.customer_id || !newOrder.items.length) {
-      toast.error("Please select a customer and at least one item");
+      toast.error("Please select a customer and at least one cow");
       return;
     }
     try {
-      const response = await api.post<Order>("/orders/", {
+      const response = await api.post<Order>("/orders/orders/", {
         customer_id: newOrder.customer_id,
-        shop: user?.shop_profile?.id,
-        lines: newOrder.items,
+        // shop: user?.shop_profile?.id,
+        lines: newOrder.items.map((item) => ({
+          cow_id: item.cow_id, // Updated to cow_id
+          quantity: item.quantity,
+        })),
       });
       setOrders([...orders, response.data]);
       setCreateOrderOpen(false);
@@ -251,7 +256,6 @@ const OrderManagement = () => {
           password: "Client123?",
         }
       );
-      console.log("Created customer:", response.data);
       const newCustomerData: Customer = {
         id: String(response.data.id),
         name: response.data.customer_name || "Unknown",
@@ -267,15 +271,14 @@ const OrderManagement = () => {
       async function fetchCustomers() {
         try {
           const response = await api.get<{ id: number; customer_name: string; customer_email: string; customer_phone: string; created: string; updated: string }[]>("/customers/");
-          console.log("Refetched customers:", response.data);
           setCustomers(
             Array.isArray(response.data)
               ? response.data.map((customer) => ({
-                  id: String(customer.id),
-                  name: customer.customer_name || "Unknown",
-                  email: customer.customer_email || "No email",
-                  phone: customer.customer_phone || "",
-                }))
+                id: String(customer.id),
+                name: customer.customer_name || "Unknown",
+                email: customer.customer_email || "No email",
+                phone: customer.customer_phone || "",
+              }))
               : []
           );
         } catch (err: any) {
@@ -284,14 +287,13 @@ const OrderManagement = () => {
       }
       fetchCustomers();
     } catch (err: any) {
-      console.error("Create customer error:", err.response?.data || err.message);
       toast.error(err.response?.data?.detail || JSON.stringify(err.response?.data) || "Failed to create customer");
     }
   };
 
   const handleUpdateStatus = async (orderId: string, status: string) => {
     try {
-      const response = await api.patch<Order>(`/orders/${orderId}/`, { status });
+      const response = await api.patch<Order>(`/orders/orders/${orderId}/`, { status });
       setOrders(orders.map((o) => (o.id === orderId ? response.data : o)));
       setSelectedOrder(response.data);
       toast.success(`Order ${orderId} status updated to ${status}`);
@@ -302,7 +304,7 @@ const OrderManagement = () => {
 
   const handleGenerateInvoice = async (orderId: string) => {
     try {
-      const response = await api.get(`/orders/${orderId}/invoice/`, { responseType: "blob" });
+      const response = await api.get(`/orders/orders/${orderId}/invoice/`, { responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -318,7 +320,7 @@ const OrderManagement = () => {
 
   const handleCreateDeliveryNote = async (orderId: string) => {
     try {
-      const response = await api.get(`/orders/${orderId}/delivery_note/`, { responseType: "blob" });
+      const response = await api.get(`/orders/orders/${orderId}/delivery_note/`, { responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -349,15 +351,15 @@ const OrderManagement = () => {
                 <p>Date: ${format(new Date(order.date), "MMMM dd, yyyy")}</p>
                 <p>Status: ${order.status}</p>
                 <p>Total: RWF ${order.total.toFixed(2)}</p>
-                <h2>Items</h2>
+                <h2>Cows</h2>
                 <table border="1">
-                  <tr><th>Item</th><th>Quantity</th><th>Price</th><th>Subtotal</th></tr>
+                  <tr><th>Cow Tag</th><th>Quantity (kg)</th><th>Price per kg</th><th>Subtotal</th></tr>
                   ${order.lines
-                    .map(
-                      (line) =>
-                        `<tr><td>${line.name}</td><td>${line.quantity}</td><td>RWF ${line.unit_price.toFixed(2)}</td><td>RWF ${line.line_total.toFixed(2)}</td></tr>`
-                    )
-                    .join("")}
+              .map(
+                (line) =>
+                  `<tr><td>${line.name}</td><td>${line.quantity.toFixed(2)}</td><td>RWF ${line.unit_price.toFixed(2)}</td><td>RWF ${line.line_total.toFixed(2)}</td></tr>`
+              )
+              .join("")}
                 </table>
               </body>
             </html>
@@ -393,7 +395,7 @@ const OrderManagement = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Order</DialogTitle>
-              <DialogDescription>Enter customer details and select items to create a new order.</DialogDescription>
+              <DialogDescription>Enter customer details and select cows to create a new order.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -426,30 +428,34 @@ const OrderManagement = () => {
                 </Select>
               </div>
               <div>
-                <Label>Items</Label>
+                <Label>Cows</Label>
                 <Select
-                  onValueChange={(itemId) =>
+                  onValueChange={(cowId) =>
                     setNewOrder({
                       ...newOrder,
-                      items: [...newOrder.items, { item_id: itemId, quantity: 1 }],
+                      items: [...newOrder.items, { cow_id: cowId, quantity: 1 }],
                     })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select item" />
+                    <SelectValue placeholder="Select cow" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableItems.map((item) => (
-                      <SelectItem key={item.id} value={item.id}>
-                        {item.name} (RWF {item.unit_price.toFixed(2)})
+                    {availableCows.map((cow) => (
+                      <SelectItem key={cow.id} value={cow.id}>
+                        {cow.tag_number} (
+                        RWF {(cow.unit_price ?? 0).toFixed(2)}/kg,
+                        {(cow.available_quantity ?? 0).toFixed(2)} kg available
+                        )
                       </SelectItem>
                     ))}
                   </SelectContent>
+
                 </Select>
               </div>
               {newOrder.items.map((item, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <span>{availableItems.find((i) => i.id === item.item_id)?.name || "Unknown"}</span>
+                  <span>{availableCows.find((c) => c.id === item.cow_id)?.tag_number || "Unknown"}</span>
                   <Input
                     type="number"
                     value={item.quantity}
@@ -457,12 +463,14 @@ const OrderManagement = () => {
                       setNewOrder({
                         ...newOrder,
                         items: newOrder.items.map((i, idx) =>
-                          idx === index ? { ...i, quantity: Math.max(1, Number(e.target.value)) } : i
+                          idx === index ? { ...i, quantity: parseFloat(e.target.value) || 0 } : i
                         ),
                       })
                     }
                     className="w-20"
-                    min="1"
+                    min="0"
+                    step="0.01" // Allow decimal values
+                    placeholder="kg"
                   />
                   <Button
                     variant="ghost"
@@ -639,7 +647,7 @@ const OrderManagement = () => {
                               {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                             </Badge>
                           </TableCell>
-                          <TableCell>RWF {order.total.toFixed(2)}</TableCell>
+                          <TableCell>RWF {Number(order.total).toFixed(2)}</TableCell>
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -729,12 +737,12 @@ const OrderManagement = () => {
                       </Select>
                     </p>
                     <p>
-                      <span className="font-medium">Total Items:</span>{" "}
-                      {selectedOrder.lines.reduce((sum, line) => sum + line.quantity, 0)}
+                      <span className="font-medium">Total Weight:</span>{" "}
+                      {Number(selectedOrder.lines.reduce((sum, line) => sum + line.quantity, 0)).toFixed(2)} kg
                     </p>
                     <p>
                       <span className="font-medium">Total Amount:</span> RWF{" "}
-                      {selectedOrder.total.toFixed(2)}
+                      {Number(selectedOrder.total).toFixed(2)}
                     </p>
                   </div>
                 </CardContent>
@@ -747,9 +755,9 @@ const OrderManagement = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Price</TableHead>
+                        <TableHead>Cow Tag</TableHead>
+                        <TableHead>Quantity (kg)</TableHead>
+                        <TableHead>Price per kg</TableHead>
                         <TableHead>Subtotal</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -757,9 +765,9 @@ const OrderManagement = () => {
                       {selectedOrder.lines.map((line, index) => (
                         <TableRow key={index}>
                           <TableCell>{line.name}</TableCell>
-                          <TableCell>{line.quantity}</TableCell>
-                          <TableCell>RWF {line.unit_price.toFixed(2)}</TableCell>
-                          <TableCell>RWF {line.line_total.toFixed(2)}</TableCell>
+                          <TableCell>{Number(line.quantity).toFixed(2)}</TableCell>
+                          <TableCell>RWF {Number(line.unit_price).toFixed(2)}</TableCell>
+                          <TableCell>RWF {Number(line.line_total).toFixed(2)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

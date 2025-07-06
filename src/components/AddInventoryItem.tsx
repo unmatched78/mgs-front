@@ -49,12 +49,14 @@ const AddInventoryItem: React.FC<AddInventoryItemProps> = ({ onItemAdded }) => {
     cow_id: string;
     category_id: string;
     quantity: string;
+    price_per_kg:string;
     batch_no: string;
     supplier_id?: string;
   }>({
     cow_id: "",
     category_id: "",
     quantity: "",
+    price_per_kg:"",
     batch_no: "",
     supplier_id: "",
   });
@@ -145,12 +147,18 @@ const AddInventoryItem: React.FC<AddInventoryItemProps> = ({ onItemAdded }) => {
 
   // Handle adding meat to inventory
   const handleAddItem = async () => {
-    if (!newItem.cow_id || !newItem.category_id || !newItem.quantity) {
+    if (!newItem.cow_id || !newItem.category_id || !newItem.quantity || !newItem.price_per_kg) {
       toast.error("Please select a cow, category, and enter a quantity");
       return;
     }
     const quantity = parseFloat(newItem.quantity);
     if (isNaN(quantity) || quantity <= 0) {
+      toast.error("Please enter a valid quantity greater than 0");
+      return;
+    }
+    //for price per kgs
+    const price_per_kg = parseFloat(newItem.price_per_kg);
+    if (isNaN(price_per_kg) || price_per_kg <= 0) {
       toast.error("Please enter a valid quantity greater than 0");
       return;
     }
@@ -164,11 +172,12 @@ const AddInventoryItem: React.FC<AddInventoryItemProps> = ({ onItemAdded }) => {
         cow: newItem.cow_id,
         category: newItem.category_id,
         quantity: quantity,
+        price_per_kg:newItem.price_per_kg,
         batch_no: newItem.batch_no,
         supplier: newItem.supplier_id === "none" ? null : newItem.supplier_id,
       });
       console.log("Created stock entry:", response.data);
-      setNewItem({ cow_id: "", category_id: "", quantity: "", batch_no: "", supplier_id: "" });
+      setNewItem({ cow_id: "", category_id: "", quantity: "", batch_no: "", supplier_id: "", price_per_kg: "" });
       setOpen(false);
       onItemAdded();
       toast.success("Meat added to inventory successfully");
@@ -250,6 +259,18 @@ const AddInventoryItem: React.FC<AddInventoryItemProps> = ({ onItemAdded }) => {
                 value={newItem.quantity}
                 onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
                 placeholder="Enter weight in kilograms"
+                min="0"
+                step="0.01"
+              />
+            </div>
+            
+            <div>
+              <Label>price_per_kg (kg)</Label>
+              <Input
+                type="number"
+                value={newItem.price_per_kg}
+                onChange={(e) => setNewItem({ ...newItem, price_per_kg: e.target.value })}
+                placeholder="Enter unit price"
                 min="0"
                 step="0.01"
               />
