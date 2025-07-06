@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
-import DocumentCenter from "../components/dashboard/DocumentCenter";
+import{DocumentCenter} from "../components/dashboard/DocumentCenter";
 import CommunicationPanel from "../components/dashboard/CommunicationPanel";
 
 type UserRole = "staff" | "supplier" | "veterinarian" | "customer";

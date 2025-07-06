@@ -1,4 +1,3 @@
-// export default OrderManagement;
 // src/components/dashboard/OrderManagement.tsx
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,6 +43,7 @@ import {
   Truck,
   Printer,
   MoreHorizontal,
+  Plus,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -55,16 +55,23 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import api from "@/api/api";
 import { useAuth } from "@/context/AuthContext";
-import { InventoryItem } from "./InventoryOverview";
+
+interface InventoryItem {
+  id: string;
+  name: string;
+  unit_price: number;
+  quantity: number;
+}
 
 interface Order {
   id: string;
   customer: {
+    id: string;
     name: string;
     email: string;
-    phone: string;
+    phone?: string;
   };
-  date: string; // ISO string from backend
+  date: string;
   status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
   total: number;
   lines: {
@@ -73,6 +80,13 @@ interface Order {
     unit_price: number;
     line_total: number;
   }[];
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
 }
 
 const OrderManagement = () => {
@@ -84,6 +98,7 @@ const OrderManagement = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderDetailsOpen, setOrderDetailsOpen] = useState<boolean>(false);
   const [createOrderOpen, setCreateOrderOpen] = useState<boolean>(false);
+  const [createCustomerOpen, setCreateCustomerOpen] = useState<boolean>(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [availableItems, setAvailableItems] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -92,7 +107,12 @@ const OrderManagement = () => {
     customer_id: string;
     items: { item_id: string; quantity: number }[];
   }>({ customer_id: "", items: [] });
-  const [customers, setCustomers] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [newCustomer, setNewCustomer] = useState<{
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+  }>({ customer_name: "", customer_email: "", customer_phone: "" });
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   // Fetch orders
   useEffect(() => {
@@ -101,15 +121,12 @@ const OrderManagement = () => {
         setLoading(false);
         return;
       }
-
       try {
         setLoading(true);
         setError(null);
         const response = await api.get<Order[]>("/orders/");
-        console.log("Orders API Response:", response.data); // Debug log
         setOrders(Array.isArray(response.data) ? response.data : []);
       } catch (err: any) {
-        console.error("Orders API Error:", err.response?.data); // Debug log
         const errorMessage = err.response?.data?.detail || "Failed to load orders";
         setError(errorMessage);
         toast.error(errorMessage);
@@ -121,25 +138,35 @@ const OrderManagement = () => {
     fetchOrders();
   }, [authLoading, user]);
 
-  // Fetch available items and customers
+  // Fetch customers and items with polling
   useEffect(() => {
     async function fetchData() {
       if (authLoading || !user || user.role !== "shop") return;
       try {
         const [itemsResponse, customersResponse] = await Promise.all([
           api.get<InventoryItem[]>("/inventory/"),
-          api.get<{ id: string; name: string; email: string }[]>("/customers/"),
+          api.get<{ id: number; customer_name: string; customer_email: string; customer_phone: string; created: string; updated: string }[]>("/customers/"),
         ]);
-        console.log("Inventory API Response:", itemsResponse.data); // Debug log
-        console.log("Customers API Response:", customersResponse.data); // Debug log
+        console.log("Customers response:", customersResponse.data);
         setAvailableItems(Array.isArray(itemsResponse.data) ? itemsResponse.data : []);
-        setCustomers(Array.isArray(customersResponse.data) ? customersResponse.data : []);
+        setCustomers(
+          Array.isArray(customersResponse.data)
+            ? customersResponse.data.map((customer) => ({
+                id: String(customer.id),
+                name: customer.customer_name || "Unknown",
+                email: customer.customer_email || "No email",
+                phone: customer.customer_phone || "",
+              }))
+            : []
+        );
       } catch (err: any) {
-        console.error("Data API Error:", err.response?.data); // Debug log
-        toast.error("Failed to load inventory or customers");
+        console.error("Fetch error:", err.response?.data || err.message);
+        toast.error("Failed to load inventory or customers: " + (err.response?.data?.detail || err.message));
       }
     }
     fetchData();
+    const interval = setInterval(fetchData, 30000); // Poll every 30 seconds
+    return () => clearInterval(interval);
   }, [authLoading, user]);
 
   // Filter orders
@@ -190,6 +217,10 @@ const OrderManagement = () => {
   };
 
   const handleCreateOrder = async () => {
+    if (!newOrder.customer_id || !newOrder.items.length) {
+      toast.error("Please select a customer and at least one item");
+      return;
+    }
     try {
       const response = await api.post<Order>("/orders/", {
         customer_id: newOrder.customer_id,
@@ -201,7 +232,60 @@ const OrderManagement = () => {
       setNewOrder({ customer_id: "", items: [] });
       toast.success(`Order ${response.data.id} created successfully`);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || "Failed to create order");
+      toast.error(err.response?.data?.detail || JSON.stringify(err.response?.data) || "Failed to create order");
+    }
+  };
+
+  const handleCreateCustomer = async () => {
+    if (!newCustomer.customer_name || !newCustomer.customer_email || !newCustomer.customer_phone) {
+      toast.error("Please fill in all customer details");
+      return;
+    }
+    try {
+      const response = await api.post<{ id: number; customer_name: string; customer_email: string; customer_phone: string }>(
+        "/register-customer/",
+        {
+          customer_name: newCustomer.customer_name,
+          customer_email: newCustomer.customer_email,
+          customer_phone: newCustomer.customer_phone,
+          password: "Client123?",
+        }
+      );
+      console.log("Created customer:", response.data);
+      const newCustomerData: Customer = {
+        id: String(response.data.id),
+        name: response.data.customer_name || "Unknown",
+        email: response.data.customer_email || "No email",
+        phone: response.data.customer_phone || "",
+      };
+      setCustomers((prev) => [...prev, newCustomerData]);
+      setNewOrder({ ...newOrder, customer_id: String(response.data.id) });
+      setCreateCustomerOpen(false);
+      setNewCustomer({ customer_name: "", customer_email: "", customer_phone: "" });
+      toast.success(`Customer ${response.data.customer_name} created successfully`);
+      // Refetch customers
+      async function fetchCustomers() {
+        try {
+          const response = await api.get<{ id: number; customer_name: string; customer_email: string; customer_phone: string; created: string; updated: string }[]>("/customers/");
+          console.log("Refetched customers:", response.data);
+          setCustomers(
+            Array.isArray(response.data)
+              ? response.data.map((customer) => ({
+                  id: String(customer.id),
+                  name: customer.customer_name || "Unknown",
+                  email: customer.customer_email || "No email",
+                  phone: customer.customer_phone || "",
+                }))
+              : []
+          );
+        } catch (err: any) {
+          console.error("Fetch customers error:", err.response?.data || err.message);
+        }
+      }
+      fetchCustomers();
+    } catch (err: any) {
+      console.error("Create customer error:", err.response?.data || err.message);
+      toast.error(err.response?.data?.detail || JSON.stringify(err.response?.data) || "Failed to create customer");
     }
   };
 
@@ -228,7 +312,6 @@ const OrderManagement = () => {
       link.remove();
       toast.success(`Invoice generated for order ${orderId}`);
     } catch (err: any) {
-      console.error("Invoice API Error:", err.response?.data); // Debug log
       toast.error(err.response?.data?.detail || "Failed to generate invoice");
     }
   };
@@ -245,15 +328,12 @@ const OrderManagement = () => {
       link.remove();
       toast.success(`Delivery note created for order ${orderId}`);
     } catch (err: any) {
-      console.error("Delivery Note API Error:", err.response?.data); // Debug log
       toast.error(err.response?.data?.detail || "Failed to create delivery note");
     }
   };
 
   const handlePrintOrder = async (orderId: string) => {
     try {
-      const response = await api.get(`/orders/${orderId}/print/`);
-      console.log("Print Order API Response:", response.data); // Debug log
       const order = orders.find((o) => o.id === orderId);
       if (order) {
         const printWindow = window.open("", "_blank");
@@ -263,9 +343,9 @@ const OrderManagement = () => {
               <head><title>Order ${orderId}</title></head>
               <body>
                 <h1>Order ${order.id}</h1>
-                <p>Customer: ${order.customer.name}</p>
-                <p>Email: ${order.customer.email}</p>
-                <p>Phone: ${order.customer.phone}</p>
+                <p>Customer: ${order.customer.name || "Unknown"}</p>
+                <p>Email: ${order.customer.email || "N/A"}</p>
+                <p>Phone: ${order.customer.phone || "N/A"}</p>
                 <p>Date: ${format(new Date(order.date), "MMMM dd, yyyy")}</p>
                 <p>Status: ${order.status}</p>
                 <p>Total: RWF ${order.total.toFixed(2)}</p>
@@ -288,7 +368,6 @@ const OrderManagement = () => {
       }
       toast.success(`Print initiated for order ${orderId}`);
     } catch (err: any) {
-      console.error("Print Order API Error:", err.response?.data); // Debug log
       toast.error(err.response?.data?.detail || "Failed to print order");
     }
   };
@@ -321,15 +400,26 @@ const OrderManagement = () => {
                 <Label>Customer</Label>
                 <Select
                   value={newOrder.customer_id}
-                  onValueChange={(value) => setNewOrder({ ...newOrder, customer_id: value })}
+                  onValueChange={(value) => {
+                    if (value === "create_new") {
+                      setCreateCustomerOpen(true);
+                    } else {
+                      setNewOrder({ ...newOrder, customer_id: value });
+                    }
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select customer" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="create_new">
+                      <div className="flex items-center">
+                        <Plus className="mr-2 h-4 w-4" /> Create New Customer
+                      </div>
+                    </SelectItem>
                     {customers.map((customer) => (
                       <SelectItem key={customer.id} value={customer.id}>
-                        {customer.name} ({customer.email})
+                        {customer.name || "Unknown"} ({customer.email || "No email"})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -359,7 +449,7 @@ const OrderManagement = () => {
               </div>
               {newOrder.items.map((item, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <span>{availableItems.find((i) => i.id === item.item_id)?.name}</span>
+                  <span>{availableItems.find((i) => i.id === item.item_id)?.name || "Unknown"}</span>
                   <Input
                     type="number"
                     value={item.quantity}
@@ -367,7 +457,7 @@ const OrderManagement = () => {
                       setNewOrder({
                         ...newOrder,
                         items: newOrder.items.map((i, idx) =>
-                          idx === index ? { ...i, quantity: Number(e.target.value) } : i
+                          idx === index ? { ...i, quantity: Math.max(1, Number(e.target.value)) } : i
                         ),
                       })
                     }
@@ -402,10 +492,52 @@ const OrderManagement = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Create Customer Dialog */}
+        <Dialog open={createCustomerOpen} onOpenChange={setCreateCustomerOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Customer</DialogTitle>
+              <DialogDescription>Enter details for the new customer.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Name</Label>
+                <Input
+                  value={newCustomer.customer_name}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, customer_name: e.target.value })}
+                  placeholder="Customer Name"
+                />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={newCustomer.customer_email}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, customer_email: e.target.value })}
+                  placeholder="customer@example.com"
+                />
+              </div>
+              <div>
+                <Label>Phone</Label>
+                <Input
+                  value={newCustomer.customer_phone}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, customer_phone: e.target.value })}
+                  placeholder="Phone Number"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateCustomerOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateCustomer}>Create Customer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex flex-col space-y-4">
-        {/* Search and Filter Bar */}
         <div className="flex flex-wrap gap-4 items-center">
           <div className="relative flex-grow max-w-md">
             <Search
@@ -419,7 +551,6 @@ const OrderManagement = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -433,7 +564,6 @@ const OrderManagement = () => {
               <SelectItem value="cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
-
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
@@ -450,7 +580,6 @@ const OrderManagement = () => {
               />
             </PopoverContent>
           </Popover>
-
           {(searchQuery || statusFilter !== "all" || dateRange) && (
             <Button
               variant="ghost"
@@ -464,8 +593,6 @@ const OrderManagement = () => {
             </Button>
           )}
         </div>
-
-        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid grid-cols-5 mb-4">
             <TabsTrigger value="pending">Pending</TabsTrigger>
@@ -474,7 +601,6 @@ const OrderManagement = () => {
             <TabsTrigger value="delivered">Delivered</TabsTrigger>
             <TabsTrigger value="all">All Orders</TabsTrigger>
           </TabsList>
-
           <TabsContent value={activeTab} className="mt-0">
             <Card>
               <CardContent className="p-0">
@@ -500,8 +626,8 @@ const OrderManagement = () => {
                           <TableCell className="font-medium">{order.id}</TableCell>
                           <TableCell>
                             <div>
-                              <div className="font-medium">{order.customer.name}</div>
-                              <div className="text-sm text-muted-foreground">{order.customer.email}</div>
+                              <div className="font-medium">{order.customer.name || "Unknown"}</div>
+                              <div className="text-sm text-muted-foreground">{order.customer.email || "No email"}</div>
                             </div>
                           </TableCell>
                           <TableCell>{format(new Date(order.date), "MMM dd, yyyy")}</TableCell>
@@ -550,8 +676,6 @@ const OrderManagement = () => {
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Order Details Dialog */}
       <Dialog open={orderDetailsOpen} onOpenChange={setOrderDetailsOpen}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -560,7 +684,6 @@ const OrderManagement = () => {
               Placed on {selectedOrder && format(new Date(selectedOrder.date), "MMMM dd, yyyy")}
             </DialogDescription>
           </DialogHeader>
-
           {selectedOrder && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
@@ -570,18 +693,17 @@ const OrderManagement = () => {
                 <CardContent>
                   <div className="space-y-2">
                     <p>
-                      <span className="font-medium">Name:</span> {selectedOrder.customer.name}
+                      <span className="font-medium">Name:</span> {selectedOrder.customer.name || "Unknown"}
                     </p>
                     <p>
-                      <span className="font-medium">Email:</span> {selectedOrder.customer.email}
+                      <span className="font-medium">Email:</span> {selectedOrder.customer.email || "No email"}
                     </p>
                     <p>
-                      <span className="font-medium">Phone:</span> {selectedOrder.customer.phone}
+                      <span className="font-medium">Phone:</span> {selectedOrder.customer.phone || "N/A"}
                     </p>
                   </div>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
                   <CardTitle>Order Summary</CardTitle>
@@ -617,7 +739,6 @@ const OrderManagement = () => {
                   </div>
                 </CardContent>
               </Card>
-
               <Card className="md:col-span-2">
                 <CardHeader>
                   <CardTitle>Order Items</CardTitle>
@@ -647,7 +768,6 @@ const OrderManagement = () => {
               </Card>
             </div>
           )}
-
           <DialogFooter className="flex justify-between items-center">
             <div className="flex space-x-2">
               <Button variant="outline" onClick={() => setOrderDetailsOpen(false)}>

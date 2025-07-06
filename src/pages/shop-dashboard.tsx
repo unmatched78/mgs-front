@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import InventoryOverview from "@/components/dashboard/InventoryOverview";
 import OrderManagement from "@/components/dashboard/OrderManagement";
-import DocumentCenter from "@/components/dashboard/DocumentCenter";
+import {DocumentCenter} from "@/components/dashboard/DocumentCenter";
 import CommunicationPanel from "@/components/dashboard/CommunicationPanel";
 import LanguageSelector from '@/components/LanguageSelector';
 import {LogoutButton} from "@/components/LogoutButton";
@@ -317,7 +317,7 @@ const ShopDashboard = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Order Management</h1>
-                <Button>Create New Order</Button>
+                {/* <Button>Create New Order</Button> */}
               </div>
               <OrderManagement />
             </div>

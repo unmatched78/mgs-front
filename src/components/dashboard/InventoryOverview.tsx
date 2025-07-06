@@ -561,3 +561,4 @@ const InventoryOverview = ({ compact = false }: { compact?: boolean }) => {
 };
 
 export default InventoryOverview;
+export type { InventoryItem };
