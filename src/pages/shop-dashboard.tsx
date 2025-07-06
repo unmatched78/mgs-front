@@ -15,6 +15,7 @@ import OrderManagement from "@/components/dashboard/OrderManagement";
 import {DocumentCenter} from "@/components/dashboard/DocumentCenter";
 import CommunicationPanel from "@/components/dashboard/CommunicationPanel";
 import LanguageSelector from '@/components/LanguageSelector';
+import AddInventoryItem from '@/components/AddInventoryItem';
 import {LogoutButton} from "@/components/LogoutButton";
 import api from "@/api/api";
 
@@ -39,6 +40,8 @@ const ShopDashboard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshInventory, setRefreshInventory] = useState(0);
+  
 
   // Fetch dashboard data
   useEffect(() => {
@@ -257,7 +260,7 @@ const ShopDashboard = () => {
                       <CardTitle>Recent Orders</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <OrderManagement compact={true} />
+                      <OrderManagement />
                     </CardContent>
                   </Card>
                 </div>
@@ -307,7 +310,8 @@ const ShopDashboard = () => {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold">Inventory Management</h1>
-                <Button>Add New Item</Button>
+                {/* <Button>Add New Item</Button> */}
+                <AddInventoryItem onItemAdded={() => setRefreshInventory((prev) => prev + 1)} />
               </div>
               <InventoryOverview />
             </div>
