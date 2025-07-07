@@ -23,7 +23,7 @@ function App() {
         <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
         <Route
           path="/home"
-          element={<PrivateRoute allowedRole="shop" children={<SupplierDashboard />} />}
+          element={<PrivateRoute allowedRole="shop" children={<Home />} />}
         />
         <Route path="*" element={<Navigate to={user ? "/home" : "/login"} replace />} />
         {/* <Route
