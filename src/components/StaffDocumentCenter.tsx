@@ -143,11 +143,14 @@ export const StaffDocumentCenter: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-6">
+        <div className="overflow-x-auto -mx-4 px-4 sm:overflow-visible sm:-mx-0 sm:px-0">
+        <TabsList className="inline-flex space-x-3 text-sm whitespace-nowrap">
+
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="pending">Pending Approvals</TabsTrigger>
           <TabsTrigger value="repository">Document Repository</TabsTrigger>
         </TabsList>
+        </div>
 
         <TabsContent value="templates" className="space-y-4">
           {isCreating && (

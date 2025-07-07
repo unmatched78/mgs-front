@@ -1042,7 +1042,7 @@ const OrderManagement: React.FC = () => {
                   <SelectContent>
                     {availableCows.map((cow) => (
                       <SelectItem key={cow.id} value={cow.id}>
-                        {cow.tag_number} ({cow.available_quantity.toFixed(1)}kg)
+                        {cow.tag_number} ({Number(cow.available_quantity).toFixed(1)}kg)
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1177,13 +1177,15 @@ const OrderManagement: React.FC = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-4">
-        <TabsList className="grid grid-cols-5 text-xs sm:text-sm">
+        <div className="overflow-x-auto -mx-4 px-4 sm:overflow-visible sm:-mx-0 sm:px-0">
+        <TabsList className="inline-flex space-x-3 text-sm whitespace-nowrap">
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
           <TabsTrigger value="shipped">Shipped</TabsTrigger>
           <TabsTrigger value="delivered">Delivered</TabsTrigger>
           <TabsTrigger value="all">All</TabsTrigger>
         </TabsList>
+        </div>
       </Tabs>
 
       {/* Orders Table */}
@@ -1220,7 +1222,7 @@ const OrderManagement: React.FC = () => {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-sm">
-                        RWF {order.total.toFixed(0)}
+                        RWF {Number(order.total).toFixed(0)}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -1298,10 +1300,10 @@ const OrderManagement: React.FC = () => {
                     </p>
                     <p>
                       <strong>Total Weight:</strong>{" "}
-                      {selectedOrder.lines.reduce((sum, l) => sum + l.quantity, 0).toFixed(1)} kg
+                      {Number(selectedOrder.lines.reduce((sum, l) => sum + l.quantity, 0)).toFixed(1)} kg
                     </p>
                     <p>
-                      <strong>Total:</strong> RWF {selectedOrder.total.toFixed(2)}
+                      <strong>Total:</strong> RWF {Number(selectedOrder.total).toFixed(2)}
                     </p>
                   </CardContent>
                 </Card>
@@ -1321,9 +1323,9 @@ const OrderManagement: React.FC = () => {
                     {selectedOrder.lines.map((l, i) => (
                       <TableRow key={i}>
                         <TableCell>{l.name}</TableCell>
-                        <TableCell>{l.quantity.toFixed(1)}</TableCell>
-                        <TableCell>RWF {l.unit_price.toFixed(2)}</TableCell>
-                        <TableCell>RWF {l.line_total.toFixed(2)}</TableCell>
+                        <TableCell>{Number(l.quantity).toFixed(1)}</TableCell>
+                        <TableCell>RWF {Number(l.unit_price).toFixed(2)}</TableCell>
+                        <TableCell>RWF {Number(l.line_total).toFixed(2)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
