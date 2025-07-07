@@ -177,7 +177,7 @@ const OrderManagement = () => {
     if (
       searchQuery &&
       !(
-        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        String(order.id).toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         order.customer.email.toLowerCase().includes(searchQuery.toLowerCase())
       )
