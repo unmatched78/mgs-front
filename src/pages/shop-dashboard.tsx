@@ -580,7 +580,7 @@ const ShopDashboard = () => {
             </div>
           </div>
           <div className="flex items-center space-x-2 md:space-x-4">
-            <LanguageSelector className="mb-2 hidden sm:block" />
+            {/* <LanguageSelector className="mb-2 hidden sm:block" /> */}
             <Button variant="outline" size="icon" className="relative">
               <Bell className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-destructive flex items-center justify-center text-[10px] text-white">

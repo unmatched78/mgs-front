@@ -161,7 +161,7 @@ export default function LandingPage() {
 
           {/* desktop nav */}
           <div className="hidden sm:flex sm:items-center sm:gap-4">
-            <LanguageSelector />
+            {/* <LanguageSelector /> */}
             <Link to="/login">
               <Button variant="outline">Login</Button>
             </Link>
@@ -186,7 +186,7 @@ export default function LandingPage() {
         {menuOpen && (
           <div className="sm:hidden bg-white border-t shadow-sm">
             <div className="flex flex-col px-4 py-2 space-y-2">
-              <LanguageSelector />
+              {/* <LanguageSelector /> */}
               <Link to="/login" onClick={() => setMenuOpen(false)}>
                 <Button variant="outline" className="w-full">
                   Login
