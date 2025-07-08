@@ -1,7 +1,7 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { loginUser, registerUser, registerSupplier, registerCustomer, logoutUser as apiLogout } from "../api/auth";
+import { loginUser, registerUser as apiRegisterUser, registerSupplier as apiRegisterSupplier, registerCustomer as apiRegisterCustomer, logoutUser as apiLogout } from "../api/auth";
 import type { RegisterData, SupplierRegisterData, CustomerRegisterData, UserData } from "../api/auth";
 import { getStoredAccessToken, getStoredRefreshToken, clearTokens, setUpdateUserCallback, storeTokens } from "../api/api";
 import axios from "axios";
@@ -104,10 +104,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   async function registerUser(data: RegisterData) {
     console.log("AuthContext: registerUser called with:", data);
-    set没了
     setLoading(true);
     try {
-      const { tokens, user } = await registerUser(data);
+      const { tokens, user } = await apiRegisterUser(data);
       setAccessToken(tokens.access);
       setUser(user);
     } catch (err: any) {
@@ -123,7 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log("AuthContext: registerSupplier called with:", data);
     setLoading(true);
     try {
-      const { tokens, user } = await registerSupplier(data);
+      const { tokens, user } = await apiRegisterSupplier(data);
       setAccessToken(tokens.access);
       setUser(user);
     } catch (err: any) {
@@ -139,7 +138,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     console.log("AuthContext: registerCustomer called with:", data);
     setLoading(true);
     try {
-      const { tokens, user } = await registerCustomer(data);
+      const { tokens, user } = await apiRegisterCustomer(data);
       setAccessToken(tokens.access);
       setUser(user);
     } catch (err: any) {

@@ -63,7 +63,7 @@ export default function TemplateBuilder() {
           if (block.type === 'placeholder') {
             return (
               <div key={block.id} style={{ position: 'absolute', left: 100, top: 100, padding: 4, border: '1px dotted #888' }}>
-                {{ clientName }}
+                {"{clientName}"}
               </div>
             );
           }

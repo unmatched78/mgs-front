@@ -444,27 +444,6 @@ interface HomeProps {
 const Home = ({ userRole = "supplier", userName = "John Doe" }: HomeProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
-
-  // Mock data for dashboard metrics
-  const metrics = {
-    totalSales: "€12,450",
-    pendingOrders: "24",
-    lowStockItems: "8",
-    expiringItems: "5",
-  };
-
-  // Mock data for pending tasks
-  const pendingTasks = [
-    { id: 1, title: "Approve delivery for Order #1234", priority: "high" },
-    { id: 2, title: "Review expiring inventory items", priority: "medium" },
-    {
-      id: 3,
-      title: "Confirm supplier delivery for tomorrow",
-      priority: "medium",
-    },
-    { id: 4, title: "Sign veterinary certificates", priority: "high" },
-  ];
-
   // Filter sidebar items based on user role
   const getSidebarItems = () => {
     const allItems = [
@@ -833,8 +812,7 @@ const Home = ({ userRole = "supplier", userName = "John Doe" }: HomeProps) => {
                     <Card>
                       <CardContent className="p-4 lg:p-6">
                         <DocumentCenter
-                          filterType="certificates"
-                          status="active"
+                          userRole={userRole}
                         />
                       </CardContent>
                     </Card>

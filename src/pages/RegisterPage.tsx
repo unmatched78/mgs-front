@@ -16,6 +16,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import LanguageSelector from "@/components/LanguageSelector";
+import { RegisterData } from "@/api/auth.ts";
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
