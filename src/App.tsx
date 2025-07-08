@@ -23,10 +23,10 @@ function App() {
         <Route path="/register" element={user ? <Navigate to="/home" replace /> : <RegisterPage />} />
         <Route
           path="/home"
-          element={<PrivateRoute allowedRole="shop" children={<VetDashboard />} />}
+          element={<PrivateRoute allowedRole="shop" children={<Home />} />}
         />
-        <Route path="*" element={<Navigate to={user ? "/home" : "/login"} replace />} />
-        {/* <Route
+        <Route path="*" element={<Navigate to={user ? "/" : "/login"} replace />} />
+        <Route
           path="/vet-dashboard"
           element={<PrivateRoute allowedRole="vet" children={<VetDashboard />} />}
         />
@@ -37,7 +37,7 @@ function App() {
         <Route
           path="/supplier-dashboard"
           element={<PrivateRoute allowedRole="supplier" children={<SupplierDashboard />} />}
-        /> */}
+        />
       </Routes>
     </Suspense>
   );
