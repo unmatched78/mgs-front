@@ -1,4 +1,3 @@
-// export default api;
 // src/api/api.ts
 import axios, { AxiosError } from "axios";
 import type {
